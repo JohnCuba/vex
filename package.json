@@ -1,0 +1,14 @@
+{
+  "name": "webra",
+  "module": "index.ts",
+  "type": "module",
+  "private": true,
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ],
+  "catalog": {
+    "@types/bun": "latest",
+    "typescript": "^6"
+  }
+}

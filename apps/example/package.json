@@ -1,0 +1,16 @@
+{
+  "name": "@webra/example",
+  "module": "index.ts",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "dev": "dev"
+  },
+  "devDependencies": {
+    "@types/bun": "catalog:",
+    "typescript": "catalog:"
+  },
+  "dependencies": {
+    "@webra/core": "workspace:*"
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "name": "@webra/core",
+  "module": "src/index.ts",
+  "type": "module",
+  "private": true,
+  "bin": {
+    "webra dev": "./bin/dev.ts"
+  },
+  "exports": {
+    ".": "./lib/index.ts"
+  },
+  "devDependencies": {
+    "@types/bun": "catalog:",
+    "typescript": "catalog:"
+  },
+  "dependencies": {
+    "fastify": "^5.8.5"
+  }
+}
