@@ -4,7 +4,7 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "dev": "webra-dev"
+    "dev": "webra dev"
   },
   "devDependencies": {
     "@types/bun": "catalog:",

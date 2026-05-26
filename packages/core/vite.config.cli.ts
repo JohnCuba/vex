@@ -5,7 +5,7 @@ export default defineConfig({
     ssr: true,
     lib: {
       entry: [
-        './cli/dev.ts'
+        './cli/webra.ts'
       ],
       formats: ['es'],
     },
