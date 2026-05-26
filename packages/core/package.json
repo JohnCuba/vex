@@ -3,17 +3,31 @@
   "module": "src/index.ts",
   "type": "module",
   "private": true,
+  "scripts": {
+    "build:lib": "vite build --config=./vite.config.lib.ts",
+    "build:cli": "vite build --config=./vite.config.cli.ts",
+    "build": "bun run build:lib && bun run build:cli"
+  },
+  "files": [
+    "dist",
+    "bin"
+  ],
   "bin": {
-    "webra dev": "./bin/dev.ts"
+    "webra-dev": "bin/dev.js"
   },
   "exports": {
-    ".": "./lib/index.ts"
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
   },
   "devDependencies": {
     "@types/bun": "catalog:",
     "typescript": "catalog:"
   },
   "dependencies": {
-    "fastify": "^5.8.5"
+    "fastify": "^5.8.5",
+    "vite": "^8.0.14",
+    "vite-plugin-dts": "^5.0.1"
   }
 }
