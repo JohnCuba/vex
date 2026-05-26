@@ -1,15 +1,24 @@
-import Fastify, { type FastifyInstance} from 'fastify'
+import Fastify, {
+  type FastifyInstance,
+  type RawServerDefault,
+  type RawRequestDefaultExpression,
+  type RawReplyDefaultExpression,
+  type FastifyTypeProviderDefault,
+} from 'fastify'
 import type { Controller } from './controller.ts'
+import { logger } from './logger.ts'
 
 export class Server {
-  private fastify: FastifyInstance
+  private fastify: FastifyInstance<RawServerDefault, RawRequestDefaultExpression, RawReplyDefaultExpression, typeof logger, FastifyTypeProviderDefault>
   private controller: Controller
 
   constructor(
     controller: Controller
   ) {
     this.controller = controller
-    this.fastify = Fastify()
+    this.fastify = Fastify({
+      loggerInstance: logger,
+    })
   }
 
   start = async () => {
