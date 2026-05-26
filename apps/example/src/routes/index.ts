@@ -1,5 +1,7 @@
-import type { RouteHandler } from '@webra/core'
+import { defineRoute } from '@webra/core'
 
-export const GET: RouteHandler = (req, rep) => {
- rep.send('Hi from Get')
-}
+export default defineRoute({
+  get: (_, rep) => {
+    rep.send('Hi from Get')
+  },
+})
