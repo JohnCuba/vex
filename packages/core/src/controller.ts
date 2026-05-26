@@ -1,18 +1,22 @@
 import type { FastifyReply, FastifyRequest } from 'fastify';
 import fs from 'node:fs/promises'
-import type { RouteModule } from './types.ts'
-import { indexFileRouteBuilder, nameFileRouteBuilder } from './entryPointBuilders.ts'
+import type { RouteModule } from './types'
+import { indexFileRouteBuilder, nameFileRouteBuilder } from './entryPointBuilders'
 
 const ENTRY_POINT_BUILDERS = [
   indexFileRouteBuilder,
   nameFileRouteBuilder,
 ]
 
+type ControllerConfig = {
+  rootPath: string
+}
+
 export class Controller {
   private rootPath: string
 
-  constructor(rootPath: string) {
-    this.rootPath = rootPath
+  constructor(config: ControllerConfig) {
+    this.rootPath = config.rootPath
   }
 
   private getRouteModule = async (url: string): Promise<RouteModule | null> => {

@@ -5,17 +5,21 @@ import Fastify, {
   type RawReplyDefaultExpression,
   type FastifyTypeProviderDefault,
 } from 'fastify'
-import type { Controller } from './controller.ts'
-import { logger } from './logger.ts'
+import type { Controller } from './controller'
+import { logger } from './logger'
+
+type ServerConfig = {
+  controller: Controller
+}
 
 export class Server {
   private fastify: FastifyInstance<RawServerDefault, RawRequestDefaultExpression, RawReplyDefaultExpression, typeof logger, FastifyTypeProviderDefault>
   private controller: Controller
 
   constructor(
-    controller: Controller
+    config: ServerConfig
   ) {
-    this.controller = controller
+    this.controller = config.controller
     this.fastify = Fastify({
       loggerInstance: logger,
     })

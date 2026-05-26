@@ -9,3 +9,10 @@ export type RouteController = Partial<Record<HTTPMethodsLowercase, RouteHandler>
 export type RouteModule = {
   default: RouteController
 }
+
+export type AppConfig = {
+  port?: number
+  paths?: {
+    routes?: string
+  }
+}

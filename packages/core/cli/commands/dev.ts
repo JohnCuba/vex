@@ -1,8 +1,6 @@
-import path from 'node:path'
-import { Server } from '../../src/server.ts';
-import { Controller } from '../../src/controller.ts';
 import type { CommandModule } from 'yargs';
-import { logger } from '../../src/logger.ts';
+import { logger } from '../../src/logger';
+import { App } from '../../src/app';
 
 export const devCommandModule: CommandModule = {
   command: 'dev',
@@ -10,10 +8,9 @@ export const devCommandModule: CommandModule = {
   handler: async () => {
     logger.info('Webra started')
 
-    const routesPath = path.resolve(process.cwd(), 'src', 'routes')
-    const controller = new Controller(routesPath)
-    const server = new Server(controller)
+    const app = new App()
 
-    await server.start()
+    await app.create()
+    await app.start()
   }
 }
