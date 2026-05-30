@@ -1,14 +1,14 @@
-import type { CommandModule } from 'yargs';
+import type { CommandModule } from "yargs";
 import type { ConfigEnv } from 'vite';
 import { App } from '../../src/app';
 import { resolveAppConfig } from '../../src/configResolvers';
 
-export const devCommandModule: CommandModule = {
-  command: 'dev',
-  describe: 'run project in development mode',
+export const startCommandModule: CommandModule = {
+  command: 'start',
+  describe: 'start builded project in production',
   handler: async () => {
     const appConfig = await resolveAppConfig()
-    const env: ConfigEnv = { command: 'serve', mode: 'development' }
+    const env: ConfigEnv = { command: 'build', mode: 'production' }
     const app = await App.create(env, appConfig)
 
     await app.start()

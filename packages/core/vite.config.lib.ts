@@ -9,5 +9,8 @@ export default defineConfig({
       entry: './lib/index.ts',
       formats: ['es'],
     },
+    rolldownOptions: {
+      external: [/^virtual:/],
+    },
   }
 })

@@ -1,34 +1,17 @@
-import path from 'node:path'
-import type { AppConfig } from './types'
-import { Controller } from './controller'
 import { Server } from './server'
+import type { AppConfig } from './types'
+import type { ConfigEnv } from 'vite'
 
 export class App {
-  private appConfig?: AppConfig
-  private rootPath = path.join(process.cwd(), 'src')
-  private get appPath() {
-    return path.join(this.rootPath, 'app.ts')
-  }
-  private get routesPath() {
-    return path.join(this.rootPath, this.appConfig?.paths?.routes || 'routes')
-  }
+  private constructor(
+    private appConfig: AppConfig,
+    private server: Server
+  ) {}
 
-  private server?: Server
+  static create = async (env: ConfigEnv, appConfig: AppConfig) => {
+    const server = await Server.create({ appConfig, env })
 
-  constructor() {}
-
-  create = async () => {
-    this.appConfig = await import(this.appPath) as AppConfig
-
-    const controller = new Controller({
-      rootPath: this.routesPath
-    })
-
-    this.server = new Server({
-      controller,
-    })
-
-    return this
+    return new App(appConfig, server)
   }
 
   start = async () => {

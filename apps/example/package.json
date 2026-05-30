@@ -4,13 +4,17 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "dev": "webra dev"
+    "dev": "webra dev",
+    "start": "webra start",
+    "build": "webra build"
   },
   "devDependencies": {
     "@types/bun": "catalog:",
+    "@vitejs/plugin-vue": "^6.0.7",
     "typescript": "catalog:"
   },
   "dependencies": {
-    "@webra/core": "workspace:*"
+    "@webra/core": "workspace:*",
+    "vue": "^3.5.34"
   }
 }

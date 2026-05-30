@@ -1,2 +1,2 @@
 export type { RouteHandler } from '../src/types'
-export { defineRoute, defineApp } from './defineConfigs'
+export { defineRoute, defineApp, defineServerEntryPoint, defineClientEntryPoint } from './defineConfigs'
