@@ -1,22 +1,35 @@
 import path from 'node:path'
+import fs from 'node:fs/promises'
 import { mergeConfig, type ConfigEnv, type UserConfig, type UserConfigExport } from "vite";
-import type { ConfigModule, AppConfig } from './types'
+import { mergeDeepRight } from 'ramda'
+import type { ConfigModule, AppConfig, ResolvedAppConfig } from './types'
 import { buildDefaultViteConfig } from './bundler'
 
-export const resolveAppConfig = async (): Promise<AppConfig> => {
-  const appConfigModule = await import(path.join(process.cwd(), 'vex.config.ts')) as ConfigModule<AppConfig>
-  return appConfigModule.default
+const DEFAULT_APP_CONFIG: ResolvedAppConfig = {
+  port: Number(process.env.PORT || 3000),
+  vite: {},
+  paths: {
+    routes: 'routes'
+  }
 }
 
-export const resolveRoutesDir = (appConfig: AppConfig) => appConfig.paths?.routes ?? 'routes'
+export const resolveAppConfig = async (): Promise<ResolvedAppConfig> => {
+  const configPath = path.join(process.cwd(), 'vex.config.ts')
 
-const objectizeViteConfig = async (configEnv: ConfigEnv, viteConfig?: UserConfigExport): Promise<UserConfig> => {
-  if (!viteConfig) return {}
+  if (!(await fs.exists(configPath))) {
+    return DEFAULT_APP_CONFIG
+  }
+
+  const fileConfig = ((await import(configPath)) as ConfigModule<AppConfig>).default
+  return mergeDeepRight(DEFAULT_APP_CONFIG, fileConfig) as ResolvedAppConfig
+}
+
+const objectizeViteConfig = async (configEnv: ConfigEnv, viteConfig: UserConfigExport): Promise<UserConfig> => {
   if (typeof viteConfig === 'function') return await viteConfig(configEnv)
   return await viteConfig
 }
 
-export const resolveViteConfig = async (configEnv: ConfigEnv, appConfig: AppConfig): Promise<UserConfig> => {
+export const resolveViteConfig = async (configEnv: ConfigEnv, appConfig: ResolvedAppConfig): Promise<UserConfig> => {
   const defaultViteConfig = await buildDefaultViteConfig(configEnv, appConfig)
   const userViteConfig = await objectizeViteConfig(configEnv, appConfig.vite)
   return mergeConfig(defaultViteConfig, userViteConfig)

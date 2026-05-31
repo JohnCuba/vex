@@ -1,14 +1,13 @@
 import path from 'node:path'
 import type { FastifyReply, FastifyRequest } from 'fastify';
 import type { ViteDevServer } from 'vite'
-import type { ConfigModule, RouteController, AppConfig } from '../types'
-import { resolveRoutesDir } from '../configResolvers'
+import type { ModuleRouteController, ConfigModule, ResolvedAppConfig } from '../types'
 import { RouteRegistry } from './routeRegistry'
 import { FrameworkHandler } from './frameworkHandler';
 
 type ControllerConfig = {
   viteDevServer: ViteDevServer | null
-  appConfig: AppConfig
+  appConfig: ResolvedAppConfig
 }
 
 export class Controller {
@@ -21,12 +20,11 @@ export class Controller {
   constructor(
     private config: ControllerConfig
   ) {
-    const routesDir = resolveRoutesDir(this.config.appConfig)
     this.routeRegistry = new RouteRegistry(
       Boolean(config.viteDevServer),
       this.resolveEnv(
-        path.join(process.cwd(), 'src', routesDir),
-        path.join(process.cwd(), 'dist', 'server', routesDir),
+        path.join(process.cwd(), 'src', this.config.appConfig.paths.routes),
+        path.join(process.cwd(), 'dist', 'server', this.config.appConfig.paths.routes),
       ),
     )
 
@@ -48,7 +46,7 @@ export class Controller {
     return rep.status(404).send('Not found')
   }
 
-  private handleApiRoute = async (handlerModule: ConfigModule<RouteController>, req: FastifyRequest, rep: FastifyReply) => {
+  private handleApiRoute = async (handlerModule: ConfigModule<ModuleRouteController>, req: FastifyRequest, rep: FastifyReply) => {
     const handler = handlerModule.default.handlers[req.method.toLowerCase()]
 
     if (!handler) {

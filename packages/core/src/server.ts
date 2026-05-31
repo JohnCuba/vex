@@ -10,11 +10,11 @@ import type { ViteDevServer, ConfigEnv } from 'vite'
 import path from 'node:path'
 import { logger } from './logger'
 import { Controller } from './controller'
-import type { AppConfig } from './types'
+import type { ResolvedAppConfig } from './types'
 import { resolveViteConfig } from './configResolvers'
 
 type ServerConfig = {
-  appConfig: AppConfig
+  appConfig: ResolvedAppConfig
   env: ConfigEnv
 }
 
@@ -84,7 +84,7 @@ export class Server {
       this.fastify.all('/*', this.controller.handleRequest)
 
       await this.fastify.listen({
-        port: this.config.appConfig.port ?? 3000
+        port: this.config.appConfig.port
       })
     } catch (err) {
       this.fastify.log.error(err)
