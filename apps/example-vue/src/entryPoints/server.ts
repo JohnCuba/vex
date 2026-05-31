@@ -1,4 +1,4 @@
-import { defineServerEntryPoint } from "@webra/core";
+import { defineServerEntryPoint } from "@vex/core";
 import { createSSRApp, type Component } from 'vue'
 import { renderToString } from 'vue/server-renderer'
 

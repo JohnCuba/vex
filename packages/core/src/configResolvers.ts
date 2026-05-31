@@ -4,7 +4,7 @@ import type { ConfigModule, AppConfig } from './types'
 import { buildDefaultViteConfig } from './bundler'
 
 export const resolveAppConfig = async (): Promise<AppConfig> => {
-  const appConfigModule = await import(path.join(process.cwd(), 'webra.config.ts')) as ConfigModule<AppConfig>
+  const appConfigModule = await import(path.join(process.cwd(), 'vex.config.ts')) as ConfigModule<AppConfig>
   return appConfigModule.default
 }
 

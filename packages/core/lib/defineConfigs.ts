@@ -15,13 +15,13 @@ type ServerAppRenderer<THandlerModule> = (
 }>
 export const defineServerEntryPoint = <THandlerModule>(renderer: ServerAppRenderer<THandlerModule>) => renderer;
 
-declare const __WEBRA_ROUTE__: string
+declare const __VEX_ROUTE__: string
 
 type ClientAppRenderer<THandlerModule> = (module: THandlerModule) => Promise<void>
 export const defineClientEntryPoint = async <THandlerModule>(renderer: ClientAppRenderer<THandlerModule>) => {
-  const { routes } = await import('virtual:webra-routes')
-  const loader = routes[__WEBRA_ROUTE__]
-  if (!loader) throw new Error(`[webra] route not found: ${__WEBRA_ROUTE__}`)
+  const { routes } = await import('virtual:vex-routes')
+  const loader = routes[__VEX_ROUTE__]
+  if (!loader) throw new Error(`[vex] route not found: ${__VEX_ROUTE__}`)
 
   const module = await loader() as { default: THandlerModule }
   renderer(module.default)

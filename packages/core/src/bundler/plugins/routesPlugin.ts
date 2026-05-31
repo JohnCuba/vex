@@ -4,14 +4,14 @@ type RoutesPluginOptions = {
   routesDir?: string
 }
 
-const VIRTUAL_MODULE_ID = 'virtual:webra-routes'
+const VIRTUAL_MODULE_ID = 'virtual:vex-routes'
 const RESOLVED_VIRTUAL_MODULE_ID = '\0' + VIRTUAL_MODULE_ID
 
 export const routesPlugin = (options: RoutesPluginOptions = {}): Plugin => {
   const routesDir = options.routesDir ?? 'routes'
 
   return {
-    name: 'webra:routes',
+    name: 'vex:routes',
     resolveId(id) {
       if (id === VIRTUAL_MODULE_ID) return RESOLVED_VIRTUAL_MODULE_ID
     },

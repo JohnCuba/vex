@@ -5,7 +5,7 @@ export default defineConfig({
     ssr: true,
     lib: {
       entry: [
-        './cli/webra.ts'
+        './cli/vex.ts'
       ],
       formats: ['es'],
     },

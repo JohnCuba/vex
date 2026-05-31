@@ -1,12 +1,12 @@
 {
-  "name": "@webra/example",
+  "name": "@vex/example",
   "module": "index.ts",
   "type": "module",
   "private": true,
   "scripts": {
-    "dev": "webra dev",
-    "start": "webra start",
-    "build": "webra build"
+    "dev": "vex dev",
+    "start": "vex start",
+    "build": "vex build"
   },
   "devDependencies": {
     "@types/bun": "catalog:",
@@ -14,7 +14,7 @@
     "typescript": "catalog:"
   },
   "dependencies": {
-    "@webra/core": "workspace:*",
+    "@vex/core": "workspace:*",
     "vue": "^3.5.34"
   }
 }

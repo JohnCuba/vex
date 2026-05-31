@@ -1,4 +1,4 @@
-import { defineClientEntryPoint } from "@webra/core";
+import { defineClientEntryPoint } from "@vex/core";
 import { createSSRApp, type Component } from "vue";
 
 export default defineClientEntryPoint<Component>(async (module) => {

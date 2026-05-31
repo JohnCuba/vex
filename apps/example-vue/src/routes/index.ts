@@ -1,4 +1,4 @@
-import { defineRoute } from '@webra/core'
+import { defineRoute } from '@vex/core'
 
 export default defineRoute({
   get: (_, rep) => {
