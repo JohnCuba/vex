@@ -1,5 +1,5 @@
 import path from 'node:path'
-import fs from 'node:fs/promises'
+import fs from 'node:fs'
 import { mergeConfig, type ConfigEnv, type UserConfig, type UserConfigExport } from "vite";
 import { mergeDeepRight } from 'ramda'
 import type { ConfigModule, AppConfig, ResolvedAppConfig } from './types'
@@ -16,7 +16,7 @@ const DEFAULT_APP_CONFIG: ResolvedAppConfig = {
 export const resolveAppConfig = async (): Promise<ResolvedAppConfig> => {
   const configPath = path.join(process.cwd(), 'vex.config.ts')
 
-  if (!(await fs.exists(configPath))) {
+  if (!fs.existsSync(configPath)) {
     return DEFAULT_APP_CONFIG
   }
 
