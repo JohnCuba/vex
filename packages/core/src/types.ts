@@ -16,7 +16,7 @@ export type AppConfig = {
   port?: number
   vite?: UserConfigExport
   paths?: {
-    routes?: string
+    routes?: string,
   }
 }
 

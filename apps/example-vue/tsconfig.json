@@ -1,4 +1,7 @@
 {
+  "include": [
+    "./*.d.ts"
+  ],
   "compilerOptions": {
     // Environment setup & latest features
     "lib": ["ESNext"],

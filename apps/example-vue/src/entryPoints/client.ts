@@ -1,7 +1,11 @@
 import { defineClientEntryPoint } from "@vex/core";
 import { createSSRApp, type Component } from "vue";
+import App from '../app/app.vue'
+import { router } from '../app/router'
 
-export default defineClientEntryPoint<Component>(async (module) => {
-  const app = createSSRApp(module)
+export default defineClientEntryPoint<Component>(async (_module) => {
+  const app = createSSRApp(App)
+    .use(router)
+
   app.mount("#app")
 })
