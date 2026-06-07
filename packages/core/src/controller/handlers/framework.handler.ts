@@ -2,7 +2,6 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import type { FastifyReply, FastifyRequest } from 'fastify';
 import type { ViteDevServer } from 'vite';
-import { parse } from 'node-html-parser';
 import { transformHtmlTemplate, type SSRHeadPayload, type Unhead } from 'unhead/server';
 import type { ServerAppRenderer, ConfigModule } from '@src/types';
 import type { RouteHandler } from './interface';
@@ -102,27 +101,22 @@ export class FrameworkHandler implements RouteHandler {
       template = await transformHtmlTemplate(head as Unhead<any, SSRHeadPayload>, template);
     }
 
-    const parsedTemplate = parse(template, { comment: true });
-
-    const entryTag = parsedTemplate.querySelector('#app');
-    if (entryTag) entryTag.innerHTML = appHtml;
+    template = template.replace('<!--SSR-APP-->', appHtml);
 
     if (!this.viteDevServer) {
       const styles = await this.getStyles(ctx?.modules);
-      if (styles) {
-        const head = parsedTemplate.querySelector('head');
-        if (head) head.insertAdjacentHTML('beforeend', styles);
-      }
+      template = template.replace('<!--SSR-STYLES-->', styles);
     }
 
     if (stateHtml) {
-      parsedTemplate.append(
+      template = template.replace(
+        '<!--SSR-STATE-->',
         `<script type="application/json" id="__VEX_STATE__">${stateHtml.replace(/</g, '\\u003c')}</script>`,
       );
     }
 
-    parsedTemplate.append(`<script>window.__VEX_ROUTE__ = '${routeKey}'</script>`);
+    template = template.replace('<!--SSR-ROUTES-->', `<script>window.__VEX_ROUTE__ = '${routeKey}'</script>`);
 
-    rep.header('Content-Type', 'text/html').send(parsedTemplate.toString());
+    rep.header('Content-Type', 'text/html').send(template);
   };
 }
