@@ -1,3 +1,4 @@
+import path from 'node:path'
 import Fastify, {
   type FastifyInstance,
   type RawServerDefault,
@@ -6,86 +7,82 @@ import Fastify, {
   type FastifyTypeProviderDefault,
 } from 'fastify'
 import fastifyMiddie from '@fastify/middie'
-import type { ViteDevServer, ConfigEnv } from 'vite'
-import path from 'node:path'
-import { logger } from './logger'
+import type { ViteDevServer } from 'vite'
 import { Controller } from './controller'
-import type { ResolvedAppConfig } from './types'
-import { resolveViteConfig } from './configResolvers'
-
-type ServerConfig = {
-  appConfig: ResolvedAppConfig
-  env: ConfigEnv
-}
+import { Router } from './router'
+import { resolveViteConfig } from './bundler/resolve'
+import * as Env from './env'
+import * as Container from './container'
+import * as Logger from './logger'
 
 export class Server {
   private constructor(
-    private config: ServerConfig,
-    private fastify: FastifyInstance<RawServerDefault, RawRequestDefaultExpression, RawReplyDefaultExpression, typeof logger, FastifyTypeProviderDefault>,
+    private fastify: FastifyInstance<
+      RawServerDefault,
+      RawRequestDefaultExpression,
+      RawReplyDefaultExpression,
+      Logger.Logger,
+      FastifyTypeProviderDefault
+    >,
     private controller: Controller
   ) {}
 
   private static createFastify = async () => {
     const fastify = Fastify({
-      loggerInstance: logger,
+      loggerInstance: Container.inject('logger'),
     })
-
     await fastify.register(fastifyMiddie)
-
     return fastify
   }
 
-  private static createViteDevServer = async (config: ServerConfig): Promise<ViteDevServer | null> => {
-    if (config.env.mode !== 'development') return null;
-
+  private static createViteDevServer = async (): Promise<ViteDevServer | null> => {
+    if (Env.isProd()) return null
+    const { appConfig, env: envConfig } = Container.inject()
     const { createServer } = await import('vite')
-    return await createServer({
-      server: {
-        middlewareMode: true,
-      },
+    return createServer({
+      server: { middlewareMode: true },
       appType: 'custom',
-      ...await resolveViteConfig(config.env, config.appConfig),
-    });
+      ...await resolveViteConfig(envConfig, appConfig),
+    })
   }
 
-  private static createStaticServer = async (config: ServerConfig) => {
-    if (config.env.mode === 'development') return null;
-
-    const staticServer = await import('@fastify/static')
-    return staticServer.default
+  private static createStaticServer = async () => {
+    if (Env.isDev()) return null
+    return (await import('@fastify/static')).default
   }
 
-  static create = async (config: ServerConfig) => {
+  static create = async () => {
+    const appConfig = Container.inject('appConfig')
     const fastify = await this.createFastify()
 
-    const viteDevServer = await this.createViteDevServer(config)
-    viteDevServer && fastify.use(viteDevServer.middlewares)
+    const viteDevServer = await this.createViteDevServer()
+    if (viteDevServer) fastify.use(viteDevServer.middlewares)
 
-    const staticServer = await this.createStaticServer(config)
-    staticServer && fastify.register(staticServer, {
-      root: path.join(process.cwd(), 'dist', 'client', 'assets'),
-      prefix: '/assets/'
+    const staticServer = await this.createStaticServer()
+    if (staticServer) {
+      fastify.register(staticServer, {
+        root: path.join(process.cwd(), 'dist', 'client', 'assets'),
+        prefix: '/assets/',
+      })
+    }
+
+    const routesDir = Env.resolver({
+      development: path.join(process.cwd(), 'src', appConfig.paths.routes),
+      production: path.join(process.cwd(), 'dist', 'server', appConfig.paths.routes),
     })
 
-    const controller = new Controller({
-      viteDevServer,
-      appConfig: config.appConfig,
-    })
+    const router = await Router.create(routesDir, viteDevServer)
 
-    return new Server(
-      config,
-      fastify,
-      controller,
-    )
+    const controller = new Controller({ viteDevServer, router, routesDir })
+
+    return new Server(fastify, controller)
   }
 
   start = async () => {
     try {
+      const appConfig = Container.inject('appConfig')
       this.fastify.all('/*', this.controller.handleRequest)
-
-      await this.fastify.listen({
-        port: this.config.appConfig.port
-      })
+      await this.fastify.listen({ port: appConfig.port })
     } catch (err) {
       this.fastify.log.error(err)
       process.exit(1)

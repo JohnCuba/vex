@@ -1,18 +1,11 @@
-import type { FastifyReply, FastifyRequest } from "fastify";
-import type { RouteController, AppConfig } from "../src/types";
+import type { RouteController, ServerAppRenderer } from "../src/types";
+import type { AppConfig } from '../src/config'
 
 export const defineRoute = (handlers: RouteController) => ({
   isApiRoute: true,
   handlers,
 });
 
-type ServerAppRenderer<THandlerModule> = (
-  module: THandlerModule,
-  req: FastifyRequest,
-  rep: FastifyReply,
-) => Promise<{
-  appHtml: string
-}>
 export const defineServerEntryPoint = <THandlerModule>(renderer: ServerAppRenderer<THandlerModule>) => renderer;
 
 declare const __VEX_ROUTE__: string

@@ -1,20 +1,17 @@
 import { Server } from './server'
-import type { ResolvedAppConfig } from './types'
-import type { ConfigEnv } from 'vite'
+import type { VexConfigEnv } from './types'
+import type { ResolvedAppConfig } from './config'
+import * as Container from './container'
+import * as Logger from './logger'
 
-export class App {
-  private constructor(
-    private appConfig: ResolvedAppConfig,
-    private server: Server
-  ) {}
+export const init = async (env: VexConfigEnv, appConfig: ResolvedAppConfig) => {
+  Container.init({
+    env,
+    appConfig,
+    logger: Logger.init(env.mode, appConfig.logLevel)
+  })
 
-  static create = async (env: ConfigEnv, appConfig: ResolvedAppConfig) => {
-    const server = await Server.create({ appConfig, env })
+  const server = await Server.create()
 
-    return new App(appConfig, server)
-  }
-
-  start = async () => {
-    await this.server?.start()
-  }
+  server.start()
 }

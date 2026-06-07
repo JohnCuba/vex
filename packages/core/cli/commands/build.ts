@@ -1,13 +1,15 @@
 import type { CommandModule } from "yargs";
-import { build, type ConfigEnv } from 'vite'
-import { resolveAppConfig, resolveViteConfig } from "../../src/configResolvers";
+import { build } from 'vite'
+import type { VexConfigEnv } from '../../src/types'
+import { resolveAppConfig } from '../../src/config'
+import { resolveViteConfig } from '../../src/bundler/resolve'
 
 export const buildCommandModule: CommandModule = {
   command: 'build',
   describe: 'build project for production',
   handler: async () => {
     const appConfig = await resolveAppConfig()
-    const env: ConfigEnv = { command: 'build', mode: 'production' }
+    const env: VexConfigEnv = { command: 'build', mode: 'production' }
 
     await build(await resolveViteConfig({ ...env, isSsrBuild: false }, appConfig))
     await build(await resolveViteConfig({ ...env, isSsrBuild: true }, appConfig))

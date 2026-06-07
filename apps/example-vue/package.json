@@ -1,5 +1,5 @@
 {
-  "name": "@vex/example",
+  "name": "@vex/example-vue",
   "module": "index.ts",
   "type": "module",
   "private": true,

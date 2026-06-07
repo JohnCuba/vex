@@ -1,84 +1,43 @@
-import path from 'node:path'
-import type { FastifyReply, FastifyRequest } from 'fastify';
+import type { FastifyReply, FastifyRequest } from 'fastify'
 import type { ViteDevServer } from 'vite'
-import type { ModuleRouteController, ConfigModule, ResolvedAppConfig } from '../types'
-import { RouteRegistry } from './routeRegistry'
-import { FrameworkHandler } from './frameworkHandler';
+import type { Router } from '../router'
+import { FrameworkHandler } from './handlers/framework.handler'
+import { ApiHandler } from './handlers/api.handler'
+import { loadModule } from '../loader'
 
 type ControllerConfig = {
   viteDevServer: ViteDevServer | null
-  appConfig: ResolvedAppConfig
+  router: Router
+  routesDir: string
 }
 
 export class Controller {
-  private resolveEnv(devPath: string, prodPath: string) {
-    return this.config.viteDevServer ? devPath : prodPath
-  }
-  private routeRegistry: RouteRegistry;
-  private frameworkHandler: FrameworkHandler;
+  private frameworkHandler: FrameworkHandler
+  private apiHandler: ApiHandler
 
-  constructor(
-    private config: ControllerConfig
-  ) {
-    this.routeRegistry = new RouteRegistry(
-      Boolean(config.viteDevServer),
-      this.resolveEnv(
-        path.join(process.cwd(), 'src', this.config.appConfig.paths.routes),
-        path.join(process.cwd(), 'dist', 'server', this.config.appConfig.paths.routes),
-      ),
-    )
-
-    this.frameworkHandler = new FrameworkHandler(
-      config.viteDevServer,
-      this.routeRegistry.routesPath,
-      this.resolveEnv(
-        path.join(process.cwd(), 'index.html'),
-        path.join(process.cwd(), 'dist', 'client', 'index.html'),
-      ),
-      this.resolveEnv(
-        path.join(process.cwd(), 'src', 'entryPoints', 'server.ts'),
-        path.join(process.cwd(), 'dist', 'server', 'entryPoints', 'server.js'),
-      )
-    )
+  constructor(private config: ControllerConfig) {
+    this.apiHandler = new ApiHandler()
+    this.frameworkHandler = new FrameworkHandler(config.viteDevServer, config.routesDir)
   }
 
   handleNotFound = async (_req: FastifyRequest, rep: FastifyReply) => {
     return rep.status(404).send('Not found')
   }
 
-  private handleApiRoute = async (handlerModule: ConfigModule<ModuleRouteController>, req: FastifyRequest, rep: FastifyReply) => {
-    const handler = handlerModule.default.handlers[req.method.toLowerCase()]
-
-    if (!handler) {
-      return this.handleNotFound(req, rep)
-    }
-
-    return handler(req, rep)
-  }
-
   handleRequest = async (req: FastifyRequest, rep: FastifyReply) => {
     const url = URL.parse(req.url, 'http://localhost.com')
-    if (!url) return this.handleNotFound(req, rep);
+    if (!url) return this.handleNotFound(req, rep)
 
-    const routes = await this.routeRegistry.getRoutes()
+    const match = this.config.router.match(url.pathname)
+    if (!match) return this.handleNotFound(req, rep)
 
-    for (const dirent of routes) {
-      if (dirent.isDirectory()) continue;
-      const handlerPath = path.join(dirent.parentPath, dirent.name)
+    const handlerModule = await loadModule(match.filePath, this.config.viteDevServer)
+    const isApi = (handlerModule as Record<string, any>).default?.isApiRoute === true
 
-      if (handlerPath.startsWith(path.join(this.routeRegistry.routesPath, url.pathname))) {
-        const handlerModule = this.config.viteDevServer
-          ? await this.config.viteDevServer.ssrLoadModule(handlerPath)
-          : await import(handlerPath);
-
-        if (handlerModule.default.isApiRoute) {
-          return this.handleApiRoute(handlerModule, req, rep)
-        } else {
-          return this.frameworkHandler.handleRequest(handlerModule, handlerPath, req, rep)
-        }
-      }
+    if (isApi) {
+      return this.apiHandler.handleRequest(handlerModule, match.filePath, req, rep)
+    } else {
+      return this.frameworkHandler.handleRequest(handlerModule, match.filePath, req, rep)
     }
-
-    return this.handleNotFound(req, rep);
   }
 }

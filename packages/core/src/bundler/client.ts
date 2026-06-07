@@ -1,6 +1,6 @@
 import path from 'node:path'
 import type { ConfigEnv, UserConfig } from 'vite'
-import type { ResolvedAppConfig } from '../types'
+import type { ResolvedAppConfig } from '../config'
 import { routesPlugin } from './plugins/routesPlugin'
 
 export const buildClientViteConfig = async (
@@ -11,6 +11,7 @@ export const buildClientViteConfig = async (
     plugins: [routesPlugin({ routesDir: appConfig.paths.routes })],
     build: {
       outDir: 'dist/client',
+      ssrManifest: true,
       rolldownOptions: {
         input: path.join(process.cwd(), 'index.html'),
       },

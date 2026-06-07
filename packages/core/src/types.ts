@@ -1,6 +1,9 @@
 import type { FastifyReply, FastifyRequest, HTTPMethods } from 'fastify';
-import type { DeepRequired } from 'utility-types';
-import type { UserConfigExport, UserConfig } from 'vite';
+import type { ConfigEnv } from 'vite';
+
+export type VexConfigEnv = ConfigEnv & {
+  mode: 'development' | 'production'
+}
 
 export type RouteHandler = (req: FastifyRequest, rep: FastifyReply) => Promise<void> | void
 
@@ -12,16 +15,13 @@ export type ModuleRouteController = {
   handlers: RouteController,
 }
 
-export type AppConfig = {
-  port?: number
-  vite?: UserConfigExport
-  paths?: {
-    routes?: string,
-  }
-}
-
-export type ResolvedAppConfig = {
-  vite: UserConfig,
-} & DeepRequired<Omit<AppConfig, 'vite'>>
-
 export type ConfigModule<T> = { default: T }
+
+export type ServerAppRenderer<THandlerModule> = (
+  module: THandlerModule,
+  req: FastifyRequest,
+  rep: FastifyReply,
+) => Promise<{
+  appHtml: string
+  ctx?: { modules?: Set<string> }
+}>

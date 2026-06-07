@@ -1,11 +1,10 @@
 <template>
-  <h1>It's Users</h1>
+  <div>
+    <h1>It's Users</h1>
+    <RouterLink to="/news">News</RouterLink>
+  </div>
 </template>
 
 <script lang="ts" setup>
-import { onMounted } from 'vue';
-
-onMounted(() => {
-  console.log('dsfsfsdf')
-})
+import { RouterLink } from 'vue-router'
 </script>

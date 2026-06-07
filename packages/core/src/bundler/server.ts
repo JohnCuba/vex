@@ -1,7 +1,7 @@
 import path from 'node:path'
 import fs from 'node:fs/promises'
 import type { ConfigEnv, UserConfig } from 'vite'
-import type { ResolvedAppConfig } from '../types'
+import type { ResolvedAppConfig } from '../config'
 import { routesPlugin } from './plugins/routesPlugin'
 
 export const buildServerViteConfig = async (env: ConfigEnv, appConfig: ResolvedAppConfig): Promise<UserConfig> => {
@@ -17,10 +17,7 @@ export const buildServerViteConfig = async (env: ConfigEnv, appConfig: ResolvedA
       ssr: true,
       outDir: 'dist/server',
       rolldownOptions: {
-        input: [
-          path.join(process.cwd(), 'src', 'entryPoints', 'server.ts'),
-          ...routeFiles,
-        ],
+        input: [appConfig.paths.entryServer, ...routeFiles],
         output: {
           preserveModules: true,
           preserveModulesRoot: path.join(process.cwd(), 'src'),

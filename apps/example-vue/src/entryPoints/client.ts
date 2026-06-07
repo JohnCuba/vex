@@ -5,7 +5,10 @@ import { router } from '../app/router'
 
 export default defineClientEntryPoint<Component>(async (_module) => {
   const app = createSSRApp(App)
-    .use(router)
+
+  app.use(router)
+
+  await router.isReady()
 
   app.mount("#app")
 })

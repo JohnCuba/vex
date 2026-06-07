@@ -5,9 +5,17 @@ import App from '../app/app.vue'
 import { router } from '../app/router'
 
 export default defineServerEntryPoint<Component>(async (_module, req, rep) => {
-  const app = createSSRApp(App).use(router)
+  const ctx = {}
+
+  const app = createSSRApp(App)
+  app.use(router)
+
+  await router.push(req.url)
+
+  const appHtml = await renderToString(app, ctx)
 
   return {
-    appHtml: await renderToString(app),
+    appHtml,
+    ctx,
   }
 })
