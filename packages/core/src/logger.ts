@@ -1,8 +1,8 @@
 import pino from 'pino';
 import type { VexConfigEnv } from './types';
 
-export type Logger = pino.Logger
-export type Level = pino.Level
+export type Logger = pino.Logger;
+export type Level = pino.Level;
 
 const buildDevOptions = (level: Level): pino.LoggerOptions<never, boolean> => ({
   level,
@@ -12,17 +12,11 @@ const buildDevOptions = (level: Level): pino.LoggerOptions<never, boolean> => ({
       colorize: true,
     },
   },
-})
+});
 
 const buildProdOprions = (level: Level): pino.LoggerOptions<never, boolean> => ({
   level,
-})
+});
 
-export const init = (
-  mode: VexConfigEnv['mode'],
-  level: Level,
-) => pino(
-  mode === 'development'
-    ? buildDevOptions(level)
-    : buildProdOprions(level)
-)
+export const init = (mode: VexConfigEnv['mode'], level: Level) =>
+  pino(mode === 'development' ? buildDevOptions(level) : buildProdOprions(level));

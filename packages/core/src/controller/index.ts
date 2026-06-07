@@ -1,43 +1,43 @@
-import type { FastifyReply, FastifyRequest } from 'fastify'
-import type { ViteDevServer } from 'vite'
-import type { Router } from '@src/router'
-import { FrameworkHandler } from './handlers/framework.handler'
-import { ApiHandler } from './handlers/api.handler'
-import { loadModule } from '@src/loader'
+import type { FastifyReply, FastifyRequest } from 'fastify';
+import type { ViteDevServer } from 'vite';
+import type { Router } from '@src/router';
+import { FrameworkHandler } from './handlers/framework.handler';
+import { ApiHandler } from './handlers/api.handler';
+import { loadModule } from '@src/loader';
 
 type ControllerConfig = {
-  viteDevServer: ViteDevServer | null
-  router: Router
-  routesDir: string
-}
+  viteDevServer: ViteDevServer | null;
+  router: Router;
+  routesDir: string;
+};
 
 export class Controller {
-  private frameworkHandler: FrameworkHandler
-  private apiHandler: ApiHandler
+  private frameworkHandler: FrameworkHandler;
+  private apiHandler: ApiHandler;
 
   constructor(private config: ControllerConfig) {
-    this.apiHandler = new ApiHandler()
-    this.frameworkHandler = new FrameworkHandler(config.viteDevServer, config.routesDir)
+    this.apiHandler = new ApiHandler();
+    this.frameworkHandler = new FrameworkHandler(config.viteDevServer, config.routesDir);
   }
 
   handleNotFound = async (_req: FastifyRequest, rep: FastifyReply) => {
-    return rep.status(404).send('Not found')
-  }
+    return rep.status(404).send('Not found');
+  };
 
   handleRequest = async (req: FastifyRequest, rep: FastifyReply) => {
-    const url = URL.parse(req.url, 'http://localhost.com')
-    if (!url) return this.handleNotFound(req, rep)
+    const url = URL.parse(req.url, 'http://localhost.com');
+    if (!url) return this.handleNotFound(req, rep);
 
-    const match = this.config.router.match(url.pathname)
-    if (!match) return this.handleNotFound(req, rep)
+    const match = this.config.router.match(url.pathname);
+    if (!match) return this.handleNotFound(req, rep);
 
-    const handlerModule = await loadModule(match.filePath, this.config.viteDevServer)
-    const isApi = (handlerModule as Record<string, any>).default?.isApiRoute === true
+    const handlerModule = await loadModule(match.filePath, this.config.viteDevServer);
+    const isApi = (handlerModule as Record<string, any>).default?.isApiRoute === true;
 
     if (isApi) {
-      return this.apiHandler.handleRequest(handlerModule, match.filePath, req, rep)
+      return this.apiHandler.handleRequest(handlerModule, match.filePath, req, rep);
     } else {
-      return this.frameworkHandler.handleRequest(handlerModule, match.filePath, req, rep)
+      return this.frameworkHandler.handleRequest(handlerModule, match.filePath, req, rep);
     }
-  }
+  };
 }

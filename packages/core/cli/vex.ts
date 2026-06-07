@@ -11,4 +11,4 @@ yargs()
   .command(buildCommandModule)
   .command(startCommandModule)
   .help()
-  .parse(hideBin(process.argv))
+  .parse(hideBin(process.argv));

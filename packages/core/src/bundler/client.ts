@@ -1,11 +1,11 @@
-import path from 'node:path'
-import type { ConfigEnv, UserConfig } from 'vite'
-import type { ResolvedAppConfig } from '@src/config'
-import { routesPlugin } from './plugins/routesPlugin'
+import path from 'node:path';
+import type { ConfigEnv, UserConfig } from 'vite';
+import type { ResolvedAppConfig } from '@src/config';
+import { routesPlugin } from './plugins/routesPlugin';
 
 export const buildClientViteConfig = async (
   env: ConfigEnv,
-  appConfig: ResolvedAppConfig
+  appConfig: ResolvedAppConfig,
 ): Promise<UserConfig> => {
   return {
     plugins: [routesPlugin({ routesDir: appConfig.paths.routes })],
@@ -16,5 +16,5 @@ export const buildClientViteConfig = async (
         input: path.join(process.cwd(), 'index.html'),
       },
     },
-  }
-}
+  };
+};

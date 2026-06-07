@@ -1,31 +1,26 @@
 {
   "name": "@vex/core",
-  "module": "src/index.ts",
-  "type": "module",
   "private": true,
-  "scripts": {
-    "build:lib": "vite build --config=./vite.config.lib.ts",
-    "build:cli": "vite build --config=./vite.config.cli.ts",
-    "build": "bun run build:lib && bun run build:cli"
+  "bin": {
+    "vex": "bin/vex.js"
   },
   "files": [
     "dist",
     "bin"
   ],
-  "bin": {
-    "vex": "bin/vex.js"
-  },
+  "type": "module",
+  "module": "src/index.ts",
   "exports": {
     ".": {
       "import": "./dist/index.js",
       "types": "./dist/index.d.ts"
     }
   },
-  "devDependencies": {
-    "@types/bun": "catalog:",
-    "@types/ramda": "^0.31.1",
-    "@types/yargs": "^17.0.35",
-    "typescript": "catalog:"
+  "scripts": {
+    "build:lib": "vite build --config=./vite.config.lib.ts",
+    "build:cli": "vite build --config=./vite.config.cli.ts",
+    "build": "bun run build:lib && bun run build:cli",
+    "fmt": "oxfmt"
   },
   "dependencies": {
     "@fastify/middie": "^9.3.2",
@@ -40,5 +35,12 @@
     "vite": "^8.0.14",
     "vite-plugin-dts": "^5.0.1",
     "yargs": "^18.0.0"
+  },
+  "devDependencies": {
+    "@types/bun": "catalog:",
+    "@types/ramda": "^0.31.1",
+    "@types/yargs": "^17.0.35",
+    "oxfmt": "^0.53.0",
+    "typescript": "catalog:"
   }
 }

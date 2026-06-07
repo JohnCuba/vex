@@ -1,17 +1,17 @@
-import { defineConfig } from "vite";
-import dts from 'vite-plugin-dts'
-import path from 'node:path'
+import { defineConfig } from 'vite';
+import dts from 'vite-plugin-dts';
+import path from 'node:path';
 
 export default defineConfig({
   resolve: {
     alias: {
       '@src': path.resolve(__dirname, './src'),
-    }
+    },
   },
   plugins: [
     dts({
       insertTypesEntry: true,
-      exclude: ['cli', 'bin', 'vite.config.*']
+      exclude: ['cli', 'bin', 'vite.config.*'],
     }),
   ],
   build: {
@@ -23,5 +23,5 @@ export default defineConfig({
     rolldownOptions: {
       external: [/^virtual:/],
     },
-  }
-})
+  },
+});

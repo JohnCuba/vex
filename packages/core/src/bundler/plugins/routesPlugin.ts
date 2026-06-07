@@ -1,22 +1,22 @@
-import type { Plugin } from 'vite'
+import type { Plugin } from 'vite';
 
 type RoutesPluginOptions = {
-  routesDir?: string
-}
+  routesDir?: string;
+};
 
-const VIRTUAL_MODULE_ID = 'virtual:vex-routes'
-const RESOLVED_VIRTUAL_MODULE_ID = '\0' + VIRTUAL_MODULE_ID
+const VIRTUAL_MODULE_ID = 'virtual:vex-routes';
+const RESOLVED_VIRTUAL_MODULE_ID = '\0' + VIRTUAL_MODULE_ID;
 
 export const routesPlugin = (options: RoutesPluginOptions = {}): Plugin => {
-  const routesDir = options.routesDir ?? 'routes'
+  const routesDir = options.routesDir ?? 'routes';
 
   return {
     name: 'vex:routes',
     resolveId(id) {
-      if (id === VIRTUAL_MODULE_ID) return RESOLVED_VIRTUAL_MODULE_ID
+      if (id === VIRTUAL_MODULE_ID) return RESOLVED_VIRTUAL_MODULE_ID;
     },
     load(id) {
-      if (id !== RESOLVED_VIRTUAL_MODULE_ID) return
+      if (id !== RESOLVED_VIRTUAL_MODULE_ID) return;
 
       return [
         `const modules = import.meta.glob([`,
@@ -29,7 +29,7 @@ export const routesPlugin = (options: RoutesPluginOptions = {}): Plugin => {
         `    loader,`,
         `  ])`,
         `)`,
-      ].join('\n')
+      ].join('\n');
     },
-  }
-}
+  };
+};

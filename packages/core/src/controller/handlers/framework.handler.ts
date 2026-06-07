@@ -1,20 +1,20 @@
-import fs from 'node:fs/promises'
-import path from 'node:path'
-import type { FastifyReply, FastifyRequest } from 'fastify'
-import type { ViteDevServer } from 'vite'
-import { parse } from 'node-html-parser'
-import { transformHtmlTemplate, type SSRHeadPayload, type Unhead } from 'unhead/server'
-import type { ServerAppRenderer, ConfigModule } from '@src/types'
-import type { RouteHandler } from './interface'
-import * as Env from '@src/env'
-import { loadModule } from '@src/loader'
+import fs from 'node:fs/promises';
+import path from 'node:path';
+import type { FastifyReply, FastifyRequest } from 'fastify';
+import type { ViteDevServer } from 'vite';
+import { parse } from 'node-html-parser';
+import { transformHtmlTemplate, type SSRHeadPayload, type Unhead } from 'unhead/server';
+import type { ServerAppRenderer, ConfigModule } from '@src/types';
+import type { RouteHandler } from './interface';
+import * as Env from '@src/env';
+import { loadModule } from '@src/loader';
 
-type SsrManifest = Record<string, string[]>
+type SsrManifest = Record<string, string[]>;
 
 export class FrameworkHandler implements RouteHandler {
-  private template?: string
-  private entryServer?: ServerAppRenderer<unknown>
-  private manifest?: SsrManifest
+  private template?: string;
+  private entryServer?: ServerAppRenderer<unknown>;
+  private manifest?: SsrManifest;
 
   constructor(
     private viteDevServer: ViteDevServer | null,
@@ -23,93 +23,106 @@ export class FrameworkHandler implements RouteHandler {
 
   private getManifest = async (): Promise<SsrManifest> => {
     if (!this.manifest) {
-      const manifestPath = path.join(process.cwd(), 'dist', 'client', '.vite', 'ssr-manifest.json')
-      this.manifest = JSON.parse(await fs.readFile(manifestPath, 'utf-8')) as SsrManifest
+      const manifestPath = path.join(process.cwd(), 'dist', 'client', '.vite', 'ssr-manifest.json');
+      this.manifest = JSON.parse(await fs.readFile(manifestPath, 'utf-8')) as SsrManifest;
     }
-    return this.manifest
-  }
+    return this.manifest;
+  };
 
   private getStyles = async (modules: Set<string> | undefined): Promise<string> => {
-    if (!modules?.size) return ''
-    const manifest = await this.getManifest()
-    const hrefs = new Set<string>()
+    if (!modules?.size) return '';
+    const manifest = await this.getManifest();
+    const hrefs = new Set<string>();
     for (const id of modules) {
-      const files = manifest[id]
-      if (!files) continue
+      const files = manifest[id];
+      if (!files) continue;
       for (const file of files) {
-        if (file.endsWith('.css')) hrefs.add(file)
+        if (file.endsWith('.css')) hrefs.add(file);
       }
     }
-    return [...hrefs].map((href) => `<link rel="stylesheet" href="${href}">`).join('')
-  }
+    return [...hrefs].map((href) => `<link rel="stylesheet" href="${href}">`).join('');
+  };
 
   private getTemplate = async () => {
     if (!this.template || Env.isDev()) {
       const templatePath = Env.resolver({
         development: path.join(process.cwd(), 'index.html'),
         production: path.join(process.cwd(), 'dist', 'client', 'index.html'),
-      })
-      this.template = await fs.readFile(templatePath, { encoding: 'utf-8' })
+      });
+      this.template = await fs.readFile(templatePath, { encoding: 'utf-8' });
     }
-    return this.template
-  }
+    return this.template;
+  };
 
   private getEntryServer = async () => {
     if (!this.entryServer || Env.isDev()) {
       const entryServerPath = Env.resolver({
         development: path.join(process.cwd(), 'src', 'entryPoints', 'server.ts'),
         production: path.join(process.cwd(), 'dist', 'server', 'entryPoints', 'server.js'),
-      })
+      });
 
       const module = await loadModule<ConfigModule<ServerAppRenderer<unknown>>>(
         entryServerPath,
         this.viteDevServer,
-      )
+      );
 
-      this.entryServer = module.default
+      this.entryServer = module.default;
     }
-    return this.entryServer
-  }
+    return this.entryServer;
+  };
 
-  handleRequest = async (handlerModule: unknown, handlerPath: string, req: FastifyRequest, rep: FastifyReply): Promise<void> => {
-    let template = await this.getTemplate()
-    const entryServer = await this.getEntryServer()
+  handleRequest = async (
+    handlerModule: unknown,
+    handlerPath: string,
+    req: FastifyRequest,
+    rep: FastifyReply,
+  ): Promise<void> => {
+    let template = await this.getTemplate();
+    const entryServer = await this.getEntryServer();
 
     if (this.viteDevServer) {
-      template = await this.viteDevServer.transformIndexHtml(req.url, template)
+      template = await this.viteDevServer.transformIndexHtml(req.url, template);
     }
 
     // routeKey matches the key in virtual:vex-routes on the client
     // e.g. routesDir=/app/src/routes, handlerPath=/app/src/routes/blog/post.ts → 'routes/blog/post'
-    const routeKey = path.relative(path.join(this.routesDir, '..'), handlerPath)
-      .split(path.sep).join('/')
-      .replace(/\.[^/.]+$/, '')
+    const routeKey = path
+      .relative(path.join(this.routesDir, '..'), handlerPath)
+      .split(path.sep)
+      .join('/')
+      .replace(/\.[^/.]+$/, '');
 
-    const { appHtml, stateHtml, ctx, head } = await entryServer!(handlerModule as Parameters<ServerAppRenderer<unknown>>[0], req, rep)
+    const { appHtml, stateHtml, ctx, head } = await entryServer!(
+      handlerModule as Parameters<ServerAppRenderer<unknown>>[0],
+      req,
+      rep,
+    );
 
     if (head) {
-      template = await transformHtmlTemplate(head as Unhead<any, SSRHeadPayload>, template)
+      template = await transformHtmlTemplate(head as Unhead<any, SSRHeadPayload>, template);
     }
 
-    const parsedTemplate = parse(template, { comment: true })
+    const parsedTemplate = parse(template, { comment: true });
 
-    const entryTag = parsedTemplate.querySelector('#app')
-    if (entryTag) entryTag.innerHTML = appHtml
+    const entryTag = parsedTemplate.querySelector('#app');
+    if (entryTag) entryTag.innerHTML = appHtml;
 
     if (!this.viteDevServer) {
-      const styles = await this.getStyles(ctx?.modules)
+      const styles = await this.getStyles(ctx?.modules);
       if (styles) {
-        const head = parsedTemplate.querySelector('head')
-        if (head) head.insertAdjacentHTML('beforeend', styles)
+        const head = parsedTemplate.querySelector('head');
+        if (head) head.insertAdjacentHTML('beforeend', styles);
       }
     }
 
     if (stateHtml) {
-      parsedTemplate.append(`<script type="application/json" id="__VEX_STATE__">${stateHtml.replace(/</g, '\\u003c')}</script>`)
+      parsedTemplate.append(
+        `<script type="application/json" id="__VEX_STATE__">${stateHtml.replace(/</g, '\\u003c')}</script>`,
+      );
     }
 
-    parsedTemplate.append(`<script>window.__VEX_ROUTE__ = '${routeKey}'</script>`)
+    parsedTemplate.append(`<script>window.__VEX_ROUTE__ = '${routeKey}'</script>`);
 
-    rep.header('Content-Type', 'text/html').send(parsedTemplate.toString())
-  }
+    rep.header('Content-Type', 'text/html').send(parsedTemplate.toString());
+  };
 }
