@@ -23,8 +23,9 @@ export class Router {
         router.registry = await buildRegistry(routesDir);
       };
       viteDevServer.watcher.on('add', rebuild);
+      viteDevServer.watcher.on('addDir', rebuild);
       viteDevServer.watcher.on('unlink', rebuild);
-      viteDevServer.watcher.on('change', rebuild);
+      viteDevServer.watcher.on('unlinkDir', rebuild);
     }
 
     return router;

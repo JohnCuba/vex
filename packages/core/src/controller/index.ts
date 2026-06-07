@@ -25,10 +25,10 @@ export class Controller {
   };
 
   handleRequest = async (req: FastifyRequest, rep: FastifyReply) => {
-    const url = URL.parse(req.url, 'http://localhost.com');
+    const url = req.url.split('?')[0];
     if (!url) return this.handleNotFound(req, rep);
 
-    const match = this.config.router.match(url.pathname);
+    const match = this.config.router.match(url);
     if (!match) return this.handleNotFound(req, rep);
 
     const handlerModule = await loadModule(match.filePath, this.config.viteDevServer);
