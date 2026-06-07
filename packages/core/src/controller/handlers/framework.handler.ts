@@ -85,7 +85,7 @@ export class FrameworkHandler implements RouteHandler {
       .split(path.sep).join('/')
       .replace(/\.[^/.]+$/, '')
 
-    const { appHtml, ctx, head } = await entryServer!(handlerModule as Parameters<ServerAppRenderer<unknown>>[0], req, rep)
+    const { appHtml, stateHtml, ctx, head } = await entryServer!(handlerModule as Parameters<ServerAppRenderer<unknown>>[0], req, rep)
 
     if (head) {
       template = await transformHtmlTemplate(head as Unhead<any, SSRHeadPayload>, template)
@@ -102,6 +102,10 @@ export class FrameworkHandler implements RouteHandler {
         const head = parsedTemplate.querySelector('head')
         if (head) head.insertAdjacentHTML('beforeend', styles)
       }
+    }
+
+    if (stateHtml) {
+      parsedTemplate.append(`<script type="application/json" id="__VEX_STATE__">${stateHtml.replace(/</g, '\\u003c')}</script>`)
     }
 
     parsedTemplate.append(`<script>window.__VEX_ROUTE__ = '${routeKey}'</script>`)
