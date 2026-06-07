@@ -1,6 +1,6 @@
 import type { FastifyReply, FastifyRequest } from 'fastify'
 import type { RouteHandler } from './interface'
-import type { ModuleRouteController } from '../../types'
+import type { ModuleRouteController } from '@src/types'
 
 export class ApiHandler implements RouteHandler {
   handleRequest = async (handlerModule: unknown, _handlerPath: string, req: FastifyRequest, rep: FastifyReply): Promise<void> => {

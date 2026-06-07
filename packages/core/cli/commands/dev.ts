@@ -1,7 +1,7 @@
 import type { CommandModule } from 'yargs';
-import * as App from '../../src/app';
-import { resolveAppConfig } from '../../src/config';
-import type { VexConfigEnv } from '../../src/types'
+import * as App from '@src/app';
+import { resolveAppConfig } from '@src/config';
+import type { VexConfigEnv } from '@src/types'
 
 export const devCommandModule: CommandModule = {
   command: 'dev',

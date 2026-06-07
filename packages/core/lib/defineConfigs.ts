@@ -1,5 +1,5 @@
-import type { RouteController, ServerAppRenderer } from "../src/types";
-import type { AppConfig } from '../src/config'
+import type { RouteController, ServerAppRenderer } from "@src/types";
+import type { AppConfig } from '@src/config'
 
 export const defineRoute = (handlers: RouteController) => ({
   isApiRoute: true,

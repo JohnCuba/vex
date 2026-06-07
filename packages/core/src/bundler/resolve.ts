@@ -1,5 +1,5 @@
 import { mergeConfig, type ConfigEnv, type UserConfig, type UserConfigExport } from 'vite'
-import type { ResolvedAppConfig } from '../config'
+import type { ResolvedAppConfig } from '@src/config'
 import { buildDefaultViteConfig } from './index'
 
 const objectizeViteConfig = async (configEnv: ConfigEnv, viteConfig: UserConfigExport): Promise<UserConfig> => {

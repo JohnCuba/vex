@@ -8,6 +8,11 @@
     "jsx": "react-jsx",
     "allowJs": true,
     "types": ["bun"],
+    // Aliases
+    "baseUrl": ".",
+    "paths": {
+      "@src/*": ["src/*"],
+    },
 
     // Bundler mode
     "moduleResolution": "bundler",

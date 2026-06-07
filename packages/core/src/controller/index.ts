@@ -1,9 +1,9 @@
 import type { FastifyReply, FastifyRequest } from 'fastify'
 import type { ViteDevServer } from 'vite'
-import type { Router } from '../router'
+import type { Router } from '@src/router'
 import { FrameworkHandler } from './handlers/framework.handler'
 import { ApiHandler } from './handlers/api.handler'
-import { loadModule } from '../loader'
+import { loadModule } from '@src/loader'
 
 type ControllerConfig = {
   viteDevServer: ViteDevServer | null

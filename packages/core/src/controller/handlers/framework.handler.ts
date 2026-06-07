@@ -4,10 +4,10 @@ import type { FastifyReply, FastifyRequest } from 'fastify'
 import type { ViteDevServer } from 'vite'
 import { parse } from 'node-html-parser'
 import { transformHtmlTemplate, type SSRHeadPayload, type Unhead } from 'unhead/server'
-import type { ServerAppRenderer, ConfigModule } from '../../types'
+import type { ServerAppRenderer, ConfigModule } from '@src/types'
 import type { RouteHandler } from './interface'
-import * as Env from '../../env'
-import { loadModule } from '../../loader'
+import * as Env from '@src/env'
+import { loadModule } from '@src/loader'
 
 type SsrManifest = Record<string, string[]>
 

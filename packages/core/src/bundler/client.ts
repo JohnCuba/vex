@@ -1,6 +1,6 @@
 import path from 'node:path'
 import type { ConfigEnv, UserConfig } from 'vite'
-import type { ResolvedAppConfig } from '../config'
+import type { ResolvedAppConfig } from '@src/config'
 import { routesPlugin } from './plugins/routesPlugin'
 
 export const buildClientViteConfig = async (

@@ -1,8 +1,8 @@
 import type { CommandModule } from "yargs";
 import { build } from 'vite'
-import type { VexConfigEnv } from '../../src/types'
-import { resolveAppConfig } from '../../src/config'
-import { resolveViteConfig } from '../../src/bundler/resolve'
+import type { VexConfigEnv } from '@src/types'
+import { resolveAppConfig } from '@src/config'
+import { resolveViteConfig } from '@src/bundler/resolve'
 
 export const buildCommandModule: CommandModule = {
   command: 'build',

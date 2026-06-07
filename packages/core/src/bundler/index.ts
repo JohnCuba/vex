@@ -1,5 +1,5 @@
 import type { ConfigEnv, UserConfig } from 'vite'
-import type { ResolvedAppConfig } from '../config'
+import type { ResolvedAppConfig } from '@src/config'
 import { buildClientViteConfig } from './client'
 import { buildServerViteConfig } from './server'
 
