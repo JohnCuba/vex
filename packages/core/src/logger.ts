@@ -14,9 +14,9 @@ const buildDevOptions = (level: Level): pino.LoggerOptions<never, boolean> => ({
   },
 });
 
-const buildProdOprions = (level: Level): pino.LoggerOptions<never, boolean> => ({
+const buildProdOptions = (level: Level): pino.LoggerOptions<never, boolean> => ({
   level,
 });
 
 export const init = (mode: VexConfigEnv['mode'], level: Level) =>
-  pino(mode === 'development' ? buildDevOptions(level) : buildProdOprions(level));
+  pino(mode === 'development' ? buildDevOptions(level) : buildProdOptions(level));
