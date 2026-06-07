@@ -7,7 +7,12 @@
 
 <script lang="ts" setup>
 import { RouterLink } from 'vue-router'
+import { useHead } from '@unhead/vue'
 import Frame from '../components/frame.vue';
+
+useHead({
+  title: 'Vex',
+})
 </script>
 
 <style lang="css" scoped>

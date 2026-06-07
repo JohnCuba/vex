@@ -1,5 +1,6 @@
-import type { FastifyReply, FastifyRequest, HTTPMethods } from 'fastify';
-import type { ConfigEnv } from 'vite';
+import type { FastifyReply, FastifyRequest, HTTPMethods } from 'fastify'
+import type { ConfigEnv } from 'vite'
+import type { Unhead } from 'unhead/server'
 
 export type VexConfigEnv = ConfigEnv & {
   mode: 'development' | 'production'
@@ -22,6 +23,7 @@ export type ServerAppRenderer<THandlerModule> = (
   req: FastifyRequest,
   rep: FastifyReply,
 ) => Promise<{
+  head?: Unhead<any, unknown>,
   appHtml: string
   ctx?: { modules?: Set<string> }
 }>

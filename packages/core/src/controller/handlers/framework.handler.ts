@@ -3,6 +3,7 @@ import path from 'node:path'
 import type { FastifyReply, FastifyRequest } from 'fastify'
 import type { ViteDevServer } from 'vite'
 import { parse } from 'node-html-parser'
+import { transformHtmlTemplate, type SSRHeadPayload, type Unhead } from 'unhead/server'
 import type { ServerAppRenderer, ConfigModule } from '../../types'
 import type { RouteHandler } from './interface'
 import * as Env from '../../env'
@@ -84,7 +85,12 @@ export class FrameworkHandler implements RouteHandler {
       .split(path.sep).join('/')
       .replace(/\.[^/.]+$/, '')
 
-    const { appHtml, ctx } = await entryServer!(handlerModule as Parameters<ServerAppRenderer<unknown>>[0], req, rep)
+    const { appHtml, ctx, head } = await entryServer!(handlerModule as Parameters<ServerAppRenderer<unknown>>[0], req, rep)
+
+    if (head) {
+      template = await transformHtmlTemplate(head as Unhead<any, SSRHeadPayload>, template)
+    }
+
     const parsedTemplate = parse(template, { comment: true })
 
     const entryTag = parsedTemplate.querySelector('#app')
