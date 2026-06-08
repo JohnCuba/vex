@@ -37,7 +37,8 @@ export class Server {
 
   private static createViteDevServer = async (): Promise<ViteDevServer | null> => {
     if (Env.isProd()) return null;
-    const { appConfig, env: envConfig } = Container.inject();
+    const appConfig = Container.inject('appConfig');
+    const envConfig = Container.inject('env');
     const { createServer } = await import('vite');
     return createServer({
       server: { middlewareMode: true },

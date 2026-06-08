@@ -115,7 +115,10 @@ export class FrameworkHandler implements RouteHandler {
       );
     }
 
-    template = template.replace('<!--SSR-ROUTES-->', `<script>window.__VEX_ROUTE__ = '${routeKey}'</script>`);
+    template = template.replace(
+      '<!--SSR-ROUTES-->',
+      `<script>window.__VEX_ROUTE__ = '${routeKey}'</script>`,
+    );
 
     rep.header('Content-Type', 'text/html').send(template);
   };

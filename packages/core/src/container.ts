@@ -5,7 +5,7 @@ import * as Logger from './logger';
 type Container = {
   env: VexConfigEnv;
   appConfig: ResolvedAppConfig;
-  logger: ReturnType<typeof Logger.init>;
+  logger: Logger.Logger;
 };
 
 class ContainerError extends Error {
@@ -15,22 +15,20 @@ class ContainerError extends Error {
   }
 }
 
-let store: Container | null = null;
+const store: Partial<Container> = {};
 
-export const init = (deps: Container): void => {
-  store = deps;
+export const provide = <K extends keyof Container>(key: K, value: Container[K]): void => {
+  if (key in store) {
+    throw new ContainerError(key + ' already provided');
+  }
+
+  store[key] = value;
 };
 
-export const provide = (deps: Record<string, unknown>): void => {
-  if (!store) throw new ContainerError('need to init container');
-  Object.assign(store, deps);
-};
+export const inject = <K extends keyof Container>(key: K): Container[K] => {
+  if (!store[key]) {
+    throw new ContainerError('not provided');
+  }
 
-export const inject = ((key?: keyof Container) => {
-  if (!store) throw new ContainerError('need to init container');
-  if (!key) return store;
   return store[key];
-}) as {
-  (): Container;
-  <Key extends keyof Container>(key: Key): Container[Key];
 };

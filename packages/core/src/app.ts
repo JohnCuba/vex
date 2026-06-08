@@ -5,11 +5,9 @@ import * as Container from './container';
 import * as Logger from './logger';
 
 export const init = async (env: VexConfigEnv, appConfig: ResolvedAppConfig) => {
-  Container.init({
-    env,
-    appConfig,
-    logger: Logger.init(env.mode, appConfig.logLevel),
-  });
+  Container.provide('env', env);
+  Container.provide('appConfig', appConfig);
+  Container.provide('logger', Logger.init(env.mode, appConfig.logLevel));
 
   const server = await Server.create();
 
