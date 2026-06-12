@@ -34,11 +34,8 @@ export class FrameworkHandler implements RouteHandler {
 
   private getTemplate = async () => {
     if (!this.template || Env.isDev()) {
-      const templatePath = Env.resolver({
-        development: path.join(process.cwd(), 'index.html'),
-        production: path.join(process.cwd(), 'dist', 'client', 'index.html'),
-      });
-      this.template = await fs.readFile(templatePath, { encoding: 'utf-8' });
+      const appConfig = Container.inject('appConfig');
+      this.template = await fs.readFile(appConfig.paths.template, { encoding: 'utf-8' });
     }
     return this.template;
   };

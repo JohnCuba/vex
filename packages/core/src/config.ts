@@ -15,6 +15,7 @@ export type AppConfig = {
   paths?: {
     routes?: string;
     entryServer?: string;
+    template?: string;
   };
 };
 
@@ -33,6 +34,7 @@ const DEFAULT_APP_CONFIG: ResolvedAppConfig = {
   paths: {
     routes: 'routes',
     entryServer: 'entryPoints/server',
+    template: 'index.html',
   },
   manifests: {},
 };
@@ -73,10 +75,14 @@ const resolvePaths = (
   const base = isDev
     ? path.join(process.cwd(), 'src')
     : path.join(process.cwd(), 'dist', 'server');
+  const templatePath = isDev
+    ? path.join(process.cwd(), paths.template)
+    : path.join(process.cwd(), 'dist', 'client', paths.template)
 
   return {
     routes: path.join(base, paths.routes),
     entryServer: path.join(base, paths.entryServer + (isDev ? '.ts' : '.js')),
+    template: templatePath,
   };
 };
 
