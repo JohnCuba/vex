@@ -6,6 +6,7 @@ import { transformHtmlTemplate, type SSRHeadPayload, type Unhead } from 'unhead/
 import type { ServerAppRenderer, ConfigModule } from '@src/types';
 import type { RouteHandler } from './interface';
 import * as Env from '@src/env';
+import * as Container from '@src/container';
 import { loadModule } from '@src/loader';
 
 type SsrManifest = Record<string, string[]>;
@@ -15,10 +16,7 @@ export class FrameworkHandler implements RouteHandler {
   private entryServer?: ServerAppRenderer<unknown>;
   private manifest?: SsrManifest;
 
-  constructor(
-    private viteDevServer: ViteDevServer | null,
-    private routesDir: string,
-  ) {}
+  constructor(private viteDevServer: ViteDevServer | null) {}
 
   private getManifest = async (): Promise<SsrManifest> => {
     if (!this.manifest) {
@@ -76,6 +74,7 @@ export class FrameworkHandler implements RouteHandler {
     req: FastifyRequest,
     rep: FastifyReply,
   ): Promise<void> => {
+    const appConfig = Container.inject('appConfig');
     let template = await this.getTemplate();
     const entryServer = await this.getEntryServer();
 
@@ -86,7 +85,7 @@ export class FrameworkHandler implements RouteHandler {
     // routeKey matches the key in virtual:vex-routes on the client
     // e.g. routesDir=/app/src/routes, handlerPath=/app/src/routes/blog/post.ts → 'routes/blog/post'
     const routeKey = path
-      .relative(path.join(this.routesDir, '..'), handlerPath)
+      .relative(path.join(appConfig.paths.routes, '..'), handlerPath)
       .split(path.sep)
       .join('/')
       .replace(/\.[^/.]+$/, '');

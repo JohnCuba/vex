@@ -10,7 +10,6 @@ import fastifyMiddie from '@fastify/middie';
 import type { ViteDevServer } from 'vite';
 import { Controller } from './controller';
 import { Router } from './router';
-import { resolveViteConfig } from './bundler/resolve';
 import * as Env from './env';
 import * as Container from './container';
 import * as Logger from './logger';
@@ -38,12 +37,11 @@ export class Server {
   private static createViteDevServer = async (): Promise<ViteDevServer | null> => {
     if (Env.isProd()) return null;
     const appConfig = Container.inject('appConfig');
-    const envConfig = Container.inject('env');
     const { createServer } = await import('vite');
     return createServer({
       server: { middlewareMode: true },
       appType: 'custom',
-      ...(await resolveViteConfig(envConfig, appConfig)),
+      ...appConfig.vite,
     });
   };
 
@@ -67,14 +65,9 @@ export class Server {
       });
     }
 
-    const routesDir = Env.resolver({
-      development: path.join(process.cwd(), 'src', appConfig.paths.routes),
-      production: path.join(process.cwd(), 'dist', 'server', appConfig.paths.routes),
-    });
+    const router = await Router.create(viteDevServer);
 
-    const router = await Router.create(routesDir, viteDevServer);
-
-    const controller = new Controller({ viteDevServer, router, routesDir });
+    const controller = new Controller({ viteDevServer, router });
 
     return new Server(fastify, controller);
   };

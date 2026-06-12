@@ -1,10 +1,11 @@
 import path from 'node:path';
 import fs from 'node:fs';
 import { mergeDeepRight } from 'ramda';
-import type { UserConfigExport, UserConfig } from 'vite';
+import { mergeConfig, type ConfigEnv, type UserConfigExport, type UserConfig } from 'vite';
 import type { DeepRequired } from 'utility-types';
-import type { ConfigModule } from './types';
+import type { ConfigModule, VexConfigEnv } from './types';
 import type * as Logger from './logger';
+import { buildDefaultViteConfig } from './bundler';
 
 export type AppConfig = {
   port?: number;
@@ -29,13 +30,39 @@ const DEFAULT_APP_CONFIG: ResolvedAppConfig = {
   },
 };
 
-export const resolveAppConfig = async (): Promise<ResolvedAppConfig> => {
+const objectizeViteConfig = async (
+  configEnv: ConfigEnv,
+  viteConfig: UserConfigExport,
+): Promise<UserConfig> => {
+  if (typeof viteConfig === 'function') return viteConfig(configEnv);
+  return viteConfig;
+};
+
+const resolveViteConfig = async (
+  configEnv: ConfigEnv,
+  appConfig: ResolvedAppConfig,
+): Promise<UserConfig> => {
+  const defaultViteConfig = await buildDefaultViteConfig(configEnv, appConfig);
+  const userViteConfig = await objectizeViteConfig(configEnv, appConfig.vite);
+  return mergeConfig(defaultViteConfig, userViteConfig);
+};
+
+export const resolveAppConfig = async (env: VexConfigEnv): Promise<ResolvedAppConfig> => {
   const configPath = path.join(process.cwd(), 'vex.config.ts');
 
   if (!fs.existsSync(configPath)) {
     return DEFAULT_APP_CONFIG;
   }
-
   const fileConfig = ((await import(configPath)) as ConfigModule<AppConfig>).default;
-  return mergeDeepRight(DEFAULT_APP_CONFIG, fileConfig) as ResolvedAppConfig;
+
+  const config = mergeDeepRight(DEFAULT_APP_CONFIG, fileConfig) as ResolvedAppConfig;
+  const routesBase =
+    env.mode === 'development' || env.command === 'build'
+      ? path.join(process.cwd(), 'src')
+      : path.join(process.cwd(), 'dist', 'server');
+  config.paths = { routes: path.join(routesBase, config.paths.routes) };
+
+  config.vite = await resolveViteConfig(env, config);
+
+  return config;
 };

@@ -7,4 +7,4 @@ export const buildDefaultViteConfig = async (
   env: ConfigEnv,
   appConfig: ResolvedAppConfig,
 ): Promise<UserConfig> =>
-  env.isSsrBuild ? buildServerViteConfig(env, appConfig) : buildClientViteConfig(env, appConfig);
+  env.isSsrBuild ? buildServerViteConfig(appConfig) : buildClientViteConfig(appConfig);

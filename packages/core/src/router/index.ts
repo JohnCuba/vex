@@ -1,26 +1,25 @@
 import type { ViteDevServer } from 'vite';
 import { buildRegistry, type RouteRegistry } from './registry';
 import { matchRoute, type RouteMatch } from './matcher';
+import * as Container from '@src/container';
 
 export type { RouteMatch };
 
 export class Router {
   private registry: RouteRegistry;
 
-  private constructor(
-    private routesDir: string,
-    registry: RouteRegistry,
-  ) {
+  private constructor(registry: RouteRegistry) {
     this.registry = registry;
   }
 
-  static async create(routesDir: string, viteDevServer: ViteDevServer | null): Promise<Router> {
-    const registry = await buildRegistry(routesDir);
-    const router = new Router(routesDir, registry);
+  static async create(viteDevServer: ViteDevServer | null): Promise<Router> {
+    const appConfig = Container.inject('appConfig');
+    const registry = await buildRegistry(appConfig.paths.routes);
+    const router = new Router(registry);
 
     if (viteDevServer) {
       const rebuild = async () => {
-        router.registry = await buildRegistry(routesDir);
+        router.registry = await buildRegistry(appConfig.paths.routes);
       };
       viteDevServer.watcher.on('add', rebuild);
       viteDevServer.watcher.on('addDir', rebuild);

@@ -7,8 +7,8 @@ export const devCommandModule: CommandModule = {
   command: 'dev',
   describe: 'run project in development mode',
   handler: async () => {
-    const appConfig = await resolveAppConfig();
     const env: VexConfigEnv = { command: 'serve', mode: 'development' };
+    const appConfig = await resolveAppConfig(env);
 
     await App.init(env, appConfig);
   },

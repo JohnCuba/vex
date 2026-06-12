@@ -8,7 +8,6 @@ import { loadModule } from '@src/loader';
 type ControllerConfig = {
   viteDevServer: ViteDevServer | null;
   router: Router;
-  routesDir: string;
 };
 
 export class Controller {
@@ -17,7 +16,7 @@ export class Controller {
 
   constructor(private config: ControllerConfig) {
     this.apiHandler = new ApiHandler();
-    this.frameworkHandler = new FrameworkHandler(config.viteDevServer, config.routesDir);
+    this.frameworkHandler = new FrameworkHandler(config.viteDevServer);
   }
 
   handleNotFound = async (_req: FastifyRequest, rep: FastifyReply) => {
