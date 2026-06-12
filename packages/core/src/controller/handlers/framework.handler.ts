@@ -45,13 +45,10 @@ export class FrameworkHandler implements RouteHandler {
 
   private getEntryServer = async () => {
     if (!this.entryServer || Env.isDev()) {
-      const entryServerPath = Env.resolver({
-        development: path.join(process.cwd(), 'src', 'entryPoints', 'server.ts'),
-        production: path.join(process.cwd(), 'dist', 'server', 'entryPoints', 'server.js'),
-      });
+      const appConfig = Container.inject('appConfig');
 
       const module = await loadModule<ConfigModule<ServerAppRenderer<unknown>>>(
-        entryServerPath,
+        appConfig.paths.entryServer,
         this.viteDevServer,
       );
 

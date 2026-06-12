@@ -14,6 +14,7 @@ export type AppConfig = {
   vite?: UserConfigExport;
   paths?: {
     routes?: string;
+    entryServer?: string;
   };
 };
 
@@ -31,6 +32,7 @@ const DEFAULT_APP_CONFIG: ResolvedAppConfig = {
   vite: {},
   paths: {
     routes: 'routes',
+    entryServer: 'entryPoints/server',
   },
   manifests: {},
 };
@@ -67,13 +69,14 @@ const resolvePaths = (
   env: VexConfigEnv,
   paths: NonNullable<ResolvedAppConfig['paths']>,
 ): ResolvedAppConfig['paths'] => {
-  const routesBase =
-    env.mode === 'development' || env.command === 'build'
-      ? path.join(process.cwd(), 'src')
-      : path.join(process.cwd(), 'dist', 'server');
+  const isDev = env.mode === 'development' || env.command === 'build'
+  const base = isDev
+    ? path.join(process.cwd(), 'src')
+    : path.join(process.cwd(), 'dist', 'server');
 
   return {
-    routes: path.join(routesBase, paths.routes),
+    routes: path.join(base, paths.routes),
+    entryServer: path.join(base, paths.entryServer + (isDev ? '.ts' : '.js')),
   };
 };
 
