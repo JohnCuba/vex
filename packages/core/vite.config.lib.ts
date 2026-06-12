@@ -10,6 +10,7 @@ export default defineConfig({
   },
   plugins: [
     dts({
+      tsconfigPath: './tsconfig.lib.json',
       insertTypesEntry: true,
       exclude: ['cli', 'bin', 'vite.config.*'],
     }),
