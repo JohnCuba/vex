@@ -1,5 +1,6 @@
 import path from 'node:path';
-import fs from 'node:fs';
+import { existsSync } from 'node:fs';
+import fs from 'node:fs/promises';
 import { mergeDeepRight } from 'ramda';
 import { mergeConfig, type ConfigEnv, type UserConfigExport, type UserConfig } from 'vite';
 import type { DeepRequired } from 'utility-types';
@@ -19,6 +20,9 @@ export type AppConfig = {
 export type ResolvedAppConfig = {
   vite: UserConfig;
   logLevel: Logger.Level;
+  manifests: {
+    ssr?: Record<string, string[]>;
+  };
 } & DeepRequired<Omit<AppConfig, 'vite' | 'logLevel'>>;
 
 const DEFAULT_APP_CONFIG: ResolvedAppConfig = {
@@ -28,6 +32,18 @@ const DEFAULT_APP_CONFIG: ResolvedAppConfig = {
   paths: {
     routes: 'routes',
   },
+  manifests: {},
+};
+
+const resolveVexConfig = async () => {
+  const configPath = path.join(process.cwd(), 'vex.config.ts');
+
+  if (!existsSync(configPath)) {
+    return DEFAULT_APP_CONFIG;
+  }
+
+  const fileConfig = ((await import(configPath)) as ConfigModule<AppConfig>).default;
+  return mergeDeepRight(DEFAULT_APP_CONFIG, fileConfig) as ResolvedAppConfig;
 };
 
 const objectizeViteConfig = async (
@@ -47,21 +63,38 @@ const resolveViteConfig = async (
   return mergeConfig(defaultViteConfig, userViteConfig);
 };
 
-export const resolveAppConfig = async (env: VexConfigEnv): Promise<ResolvedAppConfig> => {
-  const configPath = path.join(process.cwd(), 'vex.config.ts');
-
-  if (!fs.existsSync(configPath)) {
-    return DEFAULT_APP_CONFIG;
-  }
-  const fileConfig = ((await import(configPath)) as ConfigModule<AppConfig>).default;
-
-  const config = mergeDeepRight(DEFAULT_APP_CONFIG, fileConfig) as ResolvedAppConfig;
+const resolvePaths = (
+  env: VexConfigEnv,
+  paths: NonNullable<ResolvedAppConfig['paths']>,
+): ResolvedAppConfig['paths'] => {
   const routesBase =
     env.mode === 'development' || env.command === 'build'
       ? path.join(process.cwd(), 'src')
       : path.join(process.cwd(), 'dist', 'server');
-  config.paths = { routes: path.join(routesBase, config.paths.routes) };
 
+  return {
+    routes: path.join(routesBase, paths.routes),
+  };
+};
+
+const resolveManifests = async (): Promise<ResolvedAppConfig['manifests']> => {
+  const ssrManifestPath = path.join(process.cwd(), 'dist', 'client', '.vite', 'ssr-manifest.json');
+  let ssrManifest;
+  if (existsSync(ssrManifestPath)) {
+    const ssrManifestModule = await fs.readFile(ssrManifestPath, 'utf-8');
+    ssrManifest = JSON.parse(ssrManifestModule) as Record<string, string[]>;
+  }
+
+  return {
+    ssr: ssrManifest,
+  };
+};
+
+export const resolveAppConfig = async (env: VexConfigEnv): Promise<ResolvedAppConfig> => {
+  const config = await resolveVexConfig();
+
+  config.paths = resolvePaths(env, config.paths);
+  config.manifests = await resolveManifests();
   config.vite = await resolveViteConfig(env, config);
 
   return config;

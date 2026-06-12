@@ -9,29 +9,21 @@ import * as Env from '@src/env';
 import * as Container from '@src/container';
 import { loadModule } from '@src/loader';
 
-type SsrManifest = Record<string, string[]>;
-
 export class FrameworkHandler implements RouteHandler {
   private template?: string;
   private entryServer?: ServerAppRenderer<unknown>;
-  private manifest?: SsrManifest;
 
   constructor(private viteDevServer: ViteDevServer | null) {}
 
-  private getManifest = async (): Promise<SsrManifest> => {
-    if (!this.manifest) {
-      const manifestPath = path.join(process.cwd(), 'dist', 'client', '.vite', 'ssr-manifest.json');
-      this.manifest = JSON.parse(await fs.readFile(manifestPath, 'utf-8')) as SsrManifest;
-    }
-    return this.manifest;
-  };
-
   private getStyles = async (modules: Set<string> | undefined): Promise<string> => {
     if (!modules?.size) return '';
-    const manifest = await this.getManifest();
+
+    const appConfig = Container.inject('appConfig');
+    if (!appConfig.manifests.ssr) return '';
+
     const hrefs = new Set<string>();
     for (const id of modules) {
-      const files = manifest[id];
+      const files = appConfig.manifests.ssr[id];
       if (!files) continue;
       for (const file of files) {
         if (file.endsWith('.css')) hrefs.add(file);
