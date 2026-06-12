@@ -24,6 +24,7 @@ export class Server {
       FastifyTypeProviderDefault
     >,
     private controller: Controller,
+    private viteDevServer: ViteDevServer | null,
   ) {}
 
   private static createFastify = async () => {
@@ -51,7 +52,6 @@ export class Server {
   };
 
   static create = async () => {
-    const appConfig = Container.inject('appConfig');
     const fastify = await this.createFastify();
 
     const viteDevServer = await this.createViteDevServer();
@@ -69,7 +69,7 @@ export class Server {
 
     const controller = new Controller({ viteDevServer, router });
 
-    return new Server(fastify, controller);
+    return new Server(fastify, controller, viteDevServer);
   };
 
   start = async () => {
@@ -81,5 +81,10 @@ export class Server {
       this.fastify.log.error(err);
       process.exit(1);
     }
+  };
+
+  stop = async () => {
+    await this.fastify.close();
+    if (this.viteDevServer) await this.viteDevServer.close();
   };
 }
