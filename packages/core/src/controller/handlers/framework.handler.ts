@@ -5,7 +5,6 @@ import type { ViteDevServer } from 'vite';
 import { transformHtmlTemplate, type SSRHeadPayload, type Unhead } from 'unhead/server';
 import type { ServerAppRenderer, ConfigModule } from '@src/types';
 import type { RouteHandler } from './interface';
-import * as Env from '@src/env';
 import * as Container from '@src/container';
 import { loadModule } from '@src/loader';
 
@@ -33,7 +32,8 @@ export class FrameworkHandler implements RouteHandler {
   };
 
   private getTemplate = async () => {
-    if (!this.template || Env.isDev()) {
+    const env = Container.inject('env');
+    if (!this.template || env.mode === 'development') {
       const appConfig = Container.inject('appConfig');
       this.template = await fs.readFile(appConfig.paths.template, { encoding: 'utf-8' });
     }
@@ -41,7 +41,8 @@ export class FrameworkHandler implements RouteHandler {
   };
 
   private getEntryServer = async () => {
-    if (!this.entryServer || Env.isDev()) {
+    const env = Container.inject('env');
+    if (!this.entryServer || env.mode === 'development') {
       const appConfig = Container.inject('appConfig');
 
       const module = await loadModule<ConfigModule<ServerAppRenderer<unknown>>>(

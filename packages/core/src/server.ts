@@ -10,7 +10,6 @@ import fastifyMiddie from '@fastify/middie';
 import type { ViteDevServer } from 'vite';
 import { Controller } from './controller';
 import { Router } from './router';
-import * as Env from './env';
 import * as Container from './container';
 import * as Logger from './logger';
 
@@ -36,7 +35,9 @@ export class Server {
   };
 
   private static createViteDevServer = async (): Promise<ViteDevServer | null> => {
-    if (Env.isProd()) return null;
+    const env = Container.inject('env');
+    if (env.mode === 'production') return null;
+
     const appConfig = Container.inject('appConfig');
     const { createServer } = await import('vite');
     return createServer({
@@ -47,7 +48,8 @@ export class Server {
   };
 
   private static createStaticServer = async () => {
-    if (Env.isDev()) return null;
+    const env = Container.inject('env');
+    if (env.mode === 'development') return null;
     return (await import('@fastify/static')).default;
   };
 
