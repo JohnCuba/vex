@@ -1,8 +1,9 @@
-import type { RouteController, ServerAppRenderer } from '@src/types';
+import type { RouteController, RouteParams, ServerAppRenderer } from '@src/types';
 import type { AppConfig } from '@src/config';
 
-export const defineRoute = (handlers: RouteController) => ({
-  isApiRoute: true,
+export const defineAPIRoute = <Params extends RouteParams = RouteParams>(
+  handlers: RouteController<Params>,
+) => ({
   handlers,
 });
 

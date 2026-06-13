@@ -6,13 +6,19 @@ export type VexConfigEnv = ConfigEnv & {
   mode: 'development' | 'production';
 };
 
-export type RouteHandler = (req: FastifyRequest, rep: FastifyReply) => Promise<void> | void;
+export type RouteParams = Record<string, string>;
+
+export type RouteHandler<Params extends RouteParams = RouteParams> = (
+  req: FastifyRequest<{ Params: Params }>,
+  rep: FastifyReply,
+) => Promise<void> | void;
 
 type HTTPMethodsLowercase = Exclude<HTTPMethods, Uppercase<HTTPMethods>>;
 
-export type RouteController = Partial<Record<HTTPMethodsLowercase, RouteHandler>>;
+export type RouteController<Params extends RouteParams = RouteParams> = Partial<
+  Record<HTTPMethodsLowercase, RouteHandler<Params>>
+>;
 export type ModuleRouteController = {
-  isApiRoute?: true;
   handlers: RouteController;
 };
 

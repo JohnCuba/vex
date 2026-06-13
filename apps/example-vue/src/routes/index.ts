@@ -1,6 +1,6 @@
-import { defineRoute } from '@vex/core'
+import { defineAPIRoute } from '@vex/core'
 
-export default defineRoute({
+export default defineAPIRoute({
   get: (_, rep) => {
     rep.send('Hi from Get')
   },

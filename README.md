@@ -69,7 +69,7 @@ $ bun run start        # vex start  → production server
 └── packages/
     └── core/
         ├── cli/              vex dev | build | start
-        ├── lib/              public api (defineApp, defineRoute, …)
+        ├── lib/              public api (defineApp, defineAPIRoute, …)
         └── src/              runtime — server, router, bundler
 ```
 
@@ -86,13 +86,13 @@ drop files into `src/routes/`. naming dictates the URL:
 ```
 
 `.vue` (or any view module) → SSR page.
-`.ts` exporting `defineRoute({...})` → API handler.
+`.ts` exporting `defineAPIRoute({...})` → API handler.
 
 ```ts
 // src/routes/post.ts
-import { defineRoute } from '@vex/core'
+import { defineAPIRoute } from '@vex/core'
 
-export default defineRoute({
+export default defineAPIRoute({
   get: (_, rep) => rep.send({ id: 1, title: 'First post' }),
 })
 ```
@@ -217,7 +217,7 @@ $ bun run --filter '@vex/core' build       # vite × 2 (lib + cli)
 
 ```
   [x] file-based routing (static · dynamic · catch-all)
-  [x] api routes via defineRoute
+  [x] api routes via defineAPIRoute
   [x] vite SSR + HMR in dev
   [x] graceful shutdown
   [x] pluggable view layer (Vue example)

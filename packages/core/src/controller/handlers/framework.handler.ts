@@ -74,7 +74,10 @@ export class FrameworkHandler implements RouteHandler {
     );
 
     if (head) {
-      template.value = await transformHtmlTemplate(head as Unhead<any, SSRHeadPayload>, template.value);
+      template.value = await transformHtmlTemplate(
+        head as Unhead<any, SSRHeadPayload>,
+        template.value,
+      );
     }
 
     template.app = appHtml;
@@ -84,8 +87,7 @@ export class FrameworkHandler implements RouteHandler {
     }
 
     if (stateHtml) {
-      template.state =
-        `<script type="application/json" id="__VEX_STATE__">${stateHtml.replace(/</g, '\\u003c')}</script>`;
+      template.state = `<script type="application/json" id="__VEX_STATE__">${stateHtml.replace(/</g, '\\u003c')}</script>`;
     }
 
     template.routes = `<script>window.__VEX_ROUTE__ = '${routeKey}'</script>`;

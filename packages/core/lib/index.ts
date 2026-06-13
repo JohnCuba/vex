@@ -1,6 +1,6 @@
 export type { RouteHandler } from '@src/types';
 export {
-  defineRoute,
+  defineAPIRoute,
   defineApp,
   defineServerEntryPoint,
   defineClientEntryPoint,

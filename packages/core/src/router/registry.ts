@@ -1,12 +1,16 @@
 import path from 'node:path';
 import { readdir } from 'node:fs/promises';
 
+export type RouteKind = 'page' | 'api';
+
 export type StaticRoute = {
   filePath: string;
+  kind: RouteKind;
 };
 
 export type DynamicRoute = {
   filePath: string;
+  kind: RouteKind;
   pattern: RegExp;
   paramNames: string[];
   specificity: number;
@@ -19,6 +23,9 @@ export type RouteRegistry = {
 
 const CATCH_ALL = /^\[\.\.\.(.+)\]$/;
 const DYNAMIC = /^\[(.+)\]$/;
+
+const resolveKind = (filePath: string): RouteKind =>
+  path.extname(filePath) === '.ts' ? 'api' : 'page';
 
 const fileToSegments = (routesDir: string, filePath: string): string[] => {
   const relative = path.relative(routesDir, filePath);
@@ -48,6 +55,7 @@ const buildDynamicRoute = (filePath: string, segments: string[]): DynamicRoute =
 
   return {
     filePath,
+    kind: resolveKind(filePath),
     pattern: new RegExp(`^/${regexParts.join('/')}/?$`),
     paramNames,
     specificity,
@@ -57,7 +65,7 @@ const buildDynamicRoute = (filePath: string, segments: string[]): DynamicRoute =
 export const buildRegistry = async (routesDir: string): Promise<RouteRegistry> => {
   const entries = await readdir(routesDir, { recursive: true, withFileTypes: true });
 
-  const staticRoutes = new Map<string, { filePath: string }>();
+  const staticRoutes = new Map<string, StaticRoute>();
   const dynamicRoutes: DynamicRoute[] = [];
 
   for (const entry of entries) {
@@ -71,7 +79,7 @@ export const buildRegistry = async (routesDir: string): Promise<RouteRegistry> =
     if (hasDynamic) {
       dynamicRoutes.push(buildDynamicRoute(filePath, segments));
     } else {
-      staticRoutes.set(pathname, { filePath });
+      staticRoutes.set(pathname, { filePath, kind: resolveKind(filePath) });
     }
   }
 

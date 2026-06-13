@@ -71,13 +71,11 @@ const resolvePaths = (
   env: VexConfigEnv,
   paths: NonNullable<ResolvedAppConfig['paths']>,
 ): ResolvedAppConfig['paths'] => {
-  const isDev = env.mode === 'development' || env.command === 'build'
-  const base = isDev
-    ? path.join(process.cwd(), 'src')
-    : path.join(process.cwd(), 'dist', 'server');
+  const isDev = env.mode === 'development' || env.command === 'build';
+  const base = isDev ? path.join(process.cwd(), 'src') : path.join(process.cwd(), 'dist', 'server');
   const templatePath = isDev
     ? path.join(process.cwd(), paths.template)
-    : path.join(process.cwd(), 'dist', 'client', paths.template)
+    : path.join(process.cwd(), 'dist', 'client', paths.template);
 
   return {
     routes: path.join(base, paths.routes),

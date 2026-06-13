@@ -30,10 +30,11 @@ export class Controller {
     const match = this.config.router.match(url);
     if (!match) return this.handleNotFound(req, rep);
 
-    const handlerModule = await loadModule(match.filePath, this.config.viteDevServer);
-    const isApi = (handlerModule as Record<string, any>).default?.isApiRoute === true;
+    req.params = match.params;
 
-    if (isApi) {
+    const handlerModule = await loadModule(match.filePath, this.config.viteDevServer);
+
+    if (match.kind === 'api') {
       return this.apiHandler.handleRequest(handlerModule, match.filePath, req, rep);
     } else {
       return this.frameworkHandler.handleRequest(handlerModule, match.filePath, req, rep);
